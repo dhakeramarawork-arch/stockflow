@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Secure Login - {{ SITE_NAME }}{% endblock %}
+{% block body_class %}modern-auth-page{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card-modern">
+        
+        <!-- Left Brand Panel -->
+        <div class="auth-brand-side">
+            <div class="auth-bg-shapes">
+                <span class="shape s1"></span>
+                <span class="shape s2"></span>
+                <span class="shape s3"></span>
+            </div>
+            <div class="auth-brand-content">
+                <a href="{% url 'core:home' %}" class="auth-logo mb-5">
+                    <i class="bi bi-boxes"></i> {{ SITE_NAME }}
+                </a>
+                <h2 class="display-6 fw-bold text-dark mb-3">Welcome back to the future of inventory.</h2>
+                <p class="text-muted lead mb-5">Sign in to access your real-time dashboard, track stock movements, and grow your business.</p>
+                
+                <ul class="auth-features-list">
+                    <li><i class="bi bi-check-circle-fill"></i> Real-time stock synchronization</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Automated invoice generation</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Advanced reporting & analytics</li>
+                </ul>
+                
+                <div class="auth-testimonial mt-auto">
+                    <p class="text-muted mb-2">"This system transformed how we manage our warehouses. Highly recommended."</p>
+                    <h6 class="text-dark mb-0">Amara Dhaker <small class="text-muted">- CEO, TechFlow</small></h6>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Form Panel -->
+        <div class="auth-form-side">
+            <div class="auth-form-container">
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <h3 class="fw-bold mb-0">Sign In</h3>
+                    <a href="{% url 'core:home' %}" class="btn btn-sm btn-outline-modern">
+                        <i class="bi bi-arrow-left me-1"></i> Home
+                    </a>
+                </div>
+
+                {% include 'partials/messages.html' %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-modern mb-4">
+                        <label class="form-label-modern">Username</label>
+                        <div class="input-modern-wrapper">
+                            <i class="bi bi-person"></i>
+                            {{ form.username }}
+                        </div>
+                        {% if form.username.errors %}
+                        <div class="text-danger small mt-1">{{ form.username.errors|join:', ' }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-modern mb-3">
+                        <label class="form-label-modern">Password</label>
+                        <div class="input-modern-wrapper">
+                            <i class="bi bi-lock"></i>
+                            {{ form.password }}
+                            <button type="button" class="toggle-password" onclick="togglePasswordVisibility(this)">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        {% if form.password.errors %}
+                        <div class="text-danger small mt-1">{{ form.password.errors|join:', ' }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check-modern">
+                            <input class="form-check-input" type="checkbox" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">Remember me</label>
+                        </div>
+                        <a href="{% url 'accounts:forgot_password' %}" class="text-modern-link">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-modern-primary w-100 btn-lg mb-4">
+                        <i class="bi bi-shield-lock me-2"></i> Secure Sign In
+                    </button>
+
+                    <div class="text-center">
+                        <p class="text-muted small mb-0">Protected by enterprise-grade encryption</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+function togglePasswordVisibility(btn) {
+    const input = btn.parentElement.querySelector('input');
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+    }
+}
+</script>
+{% endblock %}

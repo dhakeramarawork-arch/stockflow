@@ -1,0 +1,16 @@
+<!-- Django messages with toast-style rendering -->
+{% if messages %}
+<div class="toast-container">
+    {% for message in messages %}
+    <div class="toast align-items-center text-white border-0 show toast-{{ message.tags|default:'info' }}"
+         role="alert" data-bs-autohide="true" data-bs-delay="5000">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-info-circle me-2"></i>{{ message }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

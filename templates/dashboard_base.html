@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body_class %}dashboard-body{% endblock %}
+
+{% block content %}
+<div class="app-wrapper">
+    <!-- Sidebar -->
+    {% include 'partials/sidebar.html' %}
+
+    <!-- Main content area -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Navbar -->
+        {% include 'partials/navbar.html' %}
+
+        <!-- Page Content -->
+        <main class="page-content">
+            {% include 'partials/messages.html' %}
+            {% block dashboard_content %}{% endblock %}
+        </main>
+
+        <!-- Footer -->
+        {% include 'partials/footer.html' %}
+    </div>
+</div>
+{% endblock %}

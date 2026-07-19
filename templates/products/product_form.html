@@ -1,0 +1,114 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block breadcrumb_item %}Products{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'products:list' %}">Products</a></li>
+            <li class="breadcrumb-item active">{{ title }}</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header bg-white">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-{% if product %}pencil{% else %}plus-lg{% endif %} me-2"></i>{{ title }}</h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Product Name <span class="text-danger">*</span></label>
+                        {{ form.name }}
+                        {{ form.name.errors }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Barcode</label>
+                        {{ form.barcode }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Category</label>
+                        {{ form.category }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Brand</label>
+                        {{ form.brand }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Unit</label>
+                        {{ form.unit }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Supplier</label>
+                        {{ form.supplier }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Status</label>
+                        {{ form.status }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Purchase Price</label>
+                        <div class="input-group"><span class="input-group-text">$</span>{{ form.purchase_price }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Selling Price</label>
+                        <div class="input-group"><span class="input-group-text">$</span>{{ form.selling_price }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Tax (%)</label>
+                        {{ form.tax }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Current Stock</label>
+                        {{ form.current_stock }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Minimum Stock</label>
+                        {{ form.minimum_stock }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Maximum Stock</label>
+                        {{ form.maximum_stock }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Product Image</label>
+                        {{ form.image }}
+                        <div id="imagePreview" class="mt-2"></div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        {{ form.description }}
+                    </div>
+                    <div class="col-12 mt-3">
+                        <button type="submit" class="btn btn-primary btn-animated">
+                            <i class="bi bi-save me-2"></i>Save Product
+                        </button>
+                        <a href="{% url 'products:list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Image preview
+document.getElementById('id_image').addEventListener('change', function(e) {
+    const preview = document.getElementById('imagePreview');
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            preview.innerHTML = `<img src="${ev.target.result}" class="rounded" style="max-height:150px;">`;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

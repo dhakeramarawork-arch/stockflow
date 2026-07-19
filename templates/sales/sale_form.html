@@ -1,0 +1,159 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block title %}New Sale{% endblock %}
+{% block breadcrumb_item %}New Sale{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <div class="page-header mb-4">
+        <h4 class="fw-bold"><i class="bi bi-receipt me-2"></i>New Sale / Invoice</h4>
+        <p class="text-muted">Record a sale — stock will auto-reduce.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-4">
+            <form method="post" id="saleForm">
+                {% csrf_token %}
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label">Customer</label>
+                        {{ form.customer }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Sale Date</label>
+                        {{ form.sale_date }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Payment Status</label>
+                        {{ form.payment_status }}
+                    </div>
+                </div>
+
+                <h6 class="fw-bold mb-3">Sale Items</h6>
+                <div class="table-responsive mb-3">
+                    <table class="table" id="itemsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Product</th>
+                                <th style="width:100px;">Available</th>
+                                <th style="width:120px;">Quantity</th>
+                                <th style="width:140px;">Unit Price</th>
+                                <th style="width:140px;">Total</th>
+                                <th style="width:50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsBody">
+                            <tr class="item-row">
+                                <td>
+                                    <select name="product[]" class="form-select item-product" required>
+                                        <option value="">Select product...</option>
+                                        {% for p in products %}
+                                        <option value="{{ p.id }}" data-price="{{ p.selling_price }}" data-stock="{{ p.current_stock }}">{{ p.name }} ({{ p.sku }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td class="item-stock">-</td>
+                                <td><input type="number" name="quantity[]" class="form-control item-qty" step="0.01" min="0.01" value="1" required></td>
+                                <td><input type="number" name="unit_price[]" class="form-control item-price" step="0.01" min="0" required></td>
+                                <td class="item-total">$0.00</td>
+                                <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="removeRow(this)"><i class="bi bi-x"></i></button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm mb-4" onclick="addRow()">
+                    <i class="bi bi-plus-lg me-1"></i> Add Item
+                </button>
+
+                <div class="row g-3">
+                    <div class="col-md-6"><label class="form-label">Discount</label><div class="input-group"><span class="input-group-text">$</span>{{ form.discount }}</div></div>
+                    <div class="col-md-6"><label class="form-label">Tax</label><div class="input-group"><span class="input-group-text">$</span>{{ form.tax }}</div></div>
+                    <div class="col-12"><label class="form-label">Notes</label>{{ form.notes }}</div>
+                </div>
+
+                <div class="purchase-summary mt-4 p-3 bg-light rounded">
+                    <div class="d-flex justify-content-between mb-2"><span>Subtotal:</span><strong id="subtotal">$0.00</strong></div>
+                    <div class="d-flex justify-content-between mb-2"><span>Discount:</span><strong id="discountDisplay">$0.00</strong></div>
+                    <div class="d-flex justify-content-between mb-2"><span>Tax:</span><strong id="taxDisplay">$0.00</strong></div>
+                    <hr>
+                    <div class="d-flex justify-content-between"><strong>Total:</strong><strong class="h5 text-primary" id="grandTotal">$0.00</strong></div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary btn-animated"><i class="bi bi-save me-2"></i>Save Sale</button>
+                    <a href="{% url 'sales:list' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const productMap = {};
+document.querySelectorAll('.item-product option').forEach(opt => {
+    if (opt.value) productMap[opt.value] = { price: parseFloat(opt.dataset.price), stock: parseFloat(opt.dataset.stock) };
+});
+
+function addRow() {
+    const tbody = document.getElementById('itemsBody');
+    const firstRow = tbody.querySelector('.item-row');
+    const newRow = firstRow.cloneNode(true);
+    newRow.querySelectorAll('input, select').forEach(el => el.value = el.tagName === 'SELECT' ? '' : (el.classList.contains('item-qty') ? '1' : ''));
+    newRow.querySelector('.item-stock').textContent = '-';
+    newRow.querySelector('.item-total').textContent = '$0.00';
+    tbody.appendChild(newRow);
+    attachRowListeners(newRow);
+}
+
+function removeRow(btn) {
+    if (document.querySelectorAll('.item-row').length > 1) {
+        btn.closest('tr').remove();
+        calculateTotals();
+    }
+}
+
+function attachRowListeners(row) {
+    row.querySelectorAll('.item-qty, .item-price').forEach(el => el.addEventListener('input', () => calculateRowTotal(row)));
+    row.querySelector('.item-product').addEventListener('change', function() {
+        const data = productMap[this.value];
+        if (data) {
+            row.querySelector('.item-price').value = data.price.toFixed(2);
+            row.querySelector('.item-stock').textContent = data.stock;
+        } else {
+            row.querySelector('.item-stock').textContent = '-';
+        }
+        calculateRowTotal(row);
+    });
+}
+
+function calculateRowTotal(row) {
+    const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+    const price = parseFloat(row.querySelector('.item-price').value) || 0;
+    row.querySelector('.item-total').textContent = `$${(qty * price).toFixed(2)}`;
+    calculateTotals();
+}
+
+function calculateTotals() {
+    let subtotal = 0;
+    document.querySelectorAll('.item-row').forEach(row => {
+        const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+        const price = parseFloat(row.querySelector('.item-price').value) || 0;
+        subtotal += qty * price;
+    });
+    const discount = parseFloat(document.getElementById('id_discount').value) || 0;
+    const tax = parseFloat(document.getElementById('id_tax').value) || 0;
+    document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+    document.getElementById('discountDisplay').textContent = `$${discount.toFixed(2)}`;
+    document.getElementById('taxDisplay').textContent = `$${tax.toFixed(2)}`;
+    document.getElementById('grandTotal').textContent = `$${(subtotal - discount + tax).toFixed(2)}`;
+}
+
+document.querySelectorAll('.item-row').forEach(attachRowListeners);
+document.getElementById('id_discount').addEventListener('input', calculateTotals);
+document.getElementById('id_tax').addEventListener('input', calculateTotals);
+calculateTotals();
+</script>
+{% endblock %}

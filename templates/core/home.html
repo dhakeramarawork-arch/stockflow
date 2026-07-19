@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ SITE_NAME }} - Next Gen Inventory Management{% endblock %}
+{% block body_class %}landing-page{% endblock %}
+
+{% block content %}
+<!-- Modern Navigation -->
+<nav class="navbar navbar-expand-lg landing-navbar fixed-top" id="mainNav">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'core:home' %}">
+            <i class="bi bi-boxes me-2"></i>
+            <span>{{ SITE_NAME }}</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#landingNav">
+            <i class="bi bi-list"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="landingNav">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
+                <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                <li class="nav-item"><a class="nav-link" href="#how-it-works">How it Works</a></li>
+                <li class="nav-item"><a class="nav-link" href="#stats">Impact</a></li>
+                <li class="nav-item ms-lg-2">
+                    <a href="{% url 'accounts:login' %}" class="btn btn-modern-primary">
+                        Login <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<header class="hero-section">
+    <div class="hero-bg-gradient"></div>
+    <div class="container position-relative">
+        <div class="row align-items-center min-vh-100 py-5">
+            <div class="col-lg-6 hero-text reveal">
+                <span class="badge-modern mb-4">
+                    <i class="bi bi-stars me-1"></i> Next-Generation Inventory Platform
+                </span>
+                <h1 class="display-3 fw-bold mb-4">Inventory Management,<br><span class="text-gradient">Reimagined.</span></h1>
+                <p class="lead text-muted mb-4">Unify your warehouses, suppliers, and sales channels. Automate stock tracking, eliminate human error, and scale your business with real-time intelligence.</p>
+                <div class="d-flex gap-3 flex-wrap mb-5">
+                    <a href="{% url 'accounts:login' %}" class="btn btn-modern-primary btn-lg">
+                        Access Dashboard <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                    <a href="#features" class="btn btn-outline-modern btn-lg">
+                        <i class="bi bi-play-circle me-2"></i> Explore Features
+                    </a>
+                </div>
+                <div class="d-flex align-items-center gap-4 trust-badges">
+                    <div class="d-flex align-items-center gap-2"><i class="bi bi-shield-check text-success"></i> Secure Data</div>
+                    <div class="d-flex align-items-center gap-2"><i class="bi bi-lightning-charge text-warning"></i> Real-time Sync</div>
+                </div>
+            </div>
+            <div class="col-lg-6 hero-image reveal delay-1">
+                <div class="floating-card card-1">
+                    <i class="bi bi-box-seam text-primary"></i>
+                    <div><strong>1,254</strong><small>Products Live</small></div>
+                </div>
+                <div class="floating-card card-2">
+                    <i class="bi bi-graph-up-arrow text-success"></i>
+                    <div><strong>+24%</strong><small>Sales Boost</small></div>
+                </div>
+                <div class="floating-card card-3">
+                    <i class="bi bi-bell text-warning"></i>
+                    <div><strong>Low Stock</strong><small>Alert Sent</small></div>
+                </div>
+                
+                <div class="dashboard-mockup">
+                    <div class="mockup-header">
+                        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                    </div>
+                    <div class="mockup-body">
+                        <div class="row g-3">
+                            <div class="col-4"><div class="mockup-chart"></div></div>
+                            <div class="col-8"><div class="mockup-bar"></div></div>
+                            <div class="col-12"><div class="mockup-table"></div></div>
+                            <div class="col-6"><div class="mockup-card"></div></div>
+                            <div class="col-6"><div class="mockup-card-2"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Trusted By Strip -->
+<section class="trusted-strip py-4 bg-light">
+    <div class="container">
+        <div class="row align-items-center text-center">
+            <div class="col-12 mb-3"><p class="text-muted small text-uppercase mb-0">Powering fast-growing businesses globally</p></div>
+            <div class="col-6 col-md-3"><i class="bi bi-amazon fs-2 text-muted opacity-50"></i></div>
+            <div class="col-6 col-md-3"><i class="bi bi-shop fs-2 text-muted opacity-50"></i></div>
+            <div class="col-6 col-md-3"><i class="bi bi-bag-check fs-2 text-muted opacity-50"></i></div>
+            <div class="col-6 col-md-3"><i class="bi bi-truck-front fs-2 text-muted opacity-50"></i></div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5">
+    <div class="container py-5">
+        <div class="text-center mb-5 reveal">
+            <span class="badge-modern mb-3">Features</span>
+            <h2 class="fw-bold display-6">Everything you need to scale</h2>
+            <p class="text-muted col-lg-6 mx-auto">From tracking a single SKU to managing global warehouses, our platform provides the tools you need to stay ahead.</p>
+        </div>
+        <div class="row g-4">
+            {% for feature in features %}
+            <div class="col-md-6 col-lg-4 reveal">
+                <div class="card feature-card-modern h-100">
+                    <div class="card-body p-4">
+                        <div class="feature-icon-modern mb-4">
+                            <i class="bi {{ feature.icon }}"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">{{ feature.title }}</h5>
+                        <p class="text-muted mb-0">{{ feature.desc }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section (Inspired by Image) -->
+<section id="how-it-works" class="py-5 bg-light">
+    <div class="container py-5">
+        <div class="text-center mb-5 reveal">
+            <span class="badge-modern mb-3">How it Works</span>
+            <h2 class="fw-bold display-6">Simplify your workflow in 3 steps</h2>
+            <p class="text-muted col-lg-6 mx-auto">Get up and running in minutes. No technical expertise required.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4 reveal">
+                <div class="step-card text-center p-4">
+                    <div class="step-number mb-3">1</div>
+                    <i class="bi bi-box-seam display-5 text-primary mb-3"></i>
+                    <h5 class="fw-bold">Add Your Products</h5>
+                    <p class="text-muted">Easily import your inventory or add items manually with auto-generated SKUs.</p>
+                </div>
+            </div>
+            <div class="col-md-4 reveal delay-1">
+                <div class="step-card text-center p-4">
+                    <div class="step-number mb-3">2</div>
+                    <i class="bi bi-arrow-left-right display-5 text-primary mb-3"></i>
+                    <h5 class="fw-bold">Track & Transact</h5>
+                    <p class="text-muted">Process sales and purchases. Stock levels update automatically in real-time.</p>
+                </div>
+            </div>
+            <div class="col-md-4 reveal delay-2">
+                <div class="step-card text-center p-4">
+                    <div class="step-number mb-3">3</div>
+                    <i class="bi bi-graph-up-arrow display-5 text-primary mb-3"></i>
+                    <h5 class="fw-bold">Analyze & Grow</h5>
+                    <p class="text-muted">Use our advanced reports to make data-driven decisions and scale faster.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section id="stats" class="py-5 stats-section">
+    <div class="container py-5">
+        <div class="text-center mb-5 reveal">
+            <span class="badge-modern mb-3">Our Impact</span>
+            <h2 class="fw-bold text-white display-6">Numbers that speak for themselves</h2>
+        </div>
+        <div class="row g-4 text-center">
+            <div class="col-6 col-lg-3 reveal">
+                <div class="stat-card-modern">
+                    <div class="stat-icon-circle mb-3"><i class="bi bi-box-seam-fill"></i></div>
+                    <h3 class="display-4 fw-bold counter mb-0">1,254</h3>
+                    <p class="mb-0 text-white-50">Products Managed</p>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3 reveal delay-1">
+                <div class="stat-card-modern">
+                    <div class="stat-icon-circle mb-3"><i class="bi bi-truck"></i></div>
+                    <h3 class="display-4 fw-bold counter mb-0">86</h3>
+                    <p class="mb-0 text-white-50">Active Suppliers</p>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3 reveal delay-2">
+                <div class="stat-card-modern">
+                    <div class="stat-icon-circle mb-3"><i class="bi bi-cash-stack"></i></div>
+                    <h3 class="display-4 fw-bold counter mb-0">$48.2k</h3>
+                    <p class="mb-0 text-white-50">Monthly Sales</p>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3 reveal delay-3">
+                <div class="stat-card-modern">
+                    <div class="stat-icon-circle mb-3"><i class="bi bi-graph-up-arrow"></i></div>
+                    <h3 class="display-4 fw-bold counter mb-0">99.9%</h3>
+                    <p class="mb-0 text-white-50">Uptime</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5">
+    <div class="container py-5">
+        <div class="cta-card-modern text-center p-5 p-lg-6 rounded-5 reveal">
+            <h2 class="fw-bold mb-3 text-white">Ready to transform your business?</h2>
+            <p class="lead text-white-50 mb-4">Join {{ SITE_NAME }} today and take the first step towards operational perfection.</p>
+            <a href="{% url 'accounts:login' %}" class="btn btn-light btn-lg btn-animated px-5 py-3">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Login Now
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Pro SaaS Footer -->
+<footer class="footer-pro py-5">
+    <div class="container py-4">
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <a class="navbar-brand d-flex align-items-center mb-3" href="{% url 'core:home' %}">
+                    <i class="bi bi-boxes me-2 text-primary"></i>
+                    <span class="fw-bold fs-4 text-white">{{ SITE_NAME }}</span>
+                </a>
+                <p class="text-white-50">{{ SITE_TAGLINE }}. Built for modern businesses to scale effortlessly.</p>
+                <div class="d-flex gap-3 mt-4">
+                    <a href="#" class="footer-social"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="footer-social"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" class="footer-social"><i class="bi bi-github"></i></a>
+                    <a href="#" class="footer-social"><i class="bi bi-instagram"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6 col-6">
+                <h6 class="footer-title">Product</h6>
+                <ul class="footer-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#how-it-works">How it Works</a></li>
+                    <li><a href="{% url 'accounts:login' %}">Dashboard</a></li>
+                    <li><a href="#stats">Impact</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-6 col-6">
+                <h6 class="footer-title">Company</h6>
+                <ul class="footer-links">
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <h6 class="footer-title">Stay Updated</h6>
+                <p class="text-white-50 mb-3">Get the latest product updates and news.</p>
+                <form class="footer-newsletter">
+                    <input type="email" placeholder="Enter your email" required>
+                    <button type="submit" class="btn btn-modern-primary"><i class="bi bi-send"></i></button>
+                </form>
+            </div>
+        </div>
+        <hr class="footer-divider my-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center">
+            <p class="text-white-50 small mb-0">&copy; {% now "Y" %} {{ SITE_NAME }}. All rights reserved.</p>
+            <p class="small mb-0 text-white-50">Crafted with <i class="bi bi-heart-fill text-danger"></i> by <span class="text-white fw-bold">Amara Dhaker</span></p>
+        </div>
+    </div>
+</footer>
+{% endblock %}

@@ -1,0 +1,350 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - {{ SITE_NAME }}{% endblock %}
+{% block breadcrumb_item %}Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <!-- Modern Welcome Banner -->
+    <div class="welcome-banner-modern mb-4">
+        <div>
+            <h4 class="fw-bold mb-1 text-white">Welcome back, {{ request.user.get_full_name|default:request.user.username }} 👋</h4>
+            <p class="mb-0 text-white-50">Here's what's happening with your inventory today.</p>
+        </div>
+        <div class="welcome-actions">
+            <a href="{% url 'sales:create' %}" class="btn btn-light-modern">
+                <i class="bi bi-receipt me-1"></i> New Sale
+            </a>
+            <a href="{% url 'purchases:create' %}" class="btn btn-outline-light-modern">
+                <i class="bi bi-cart-plus me-1"></i> New Purchase
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-xl-3">
+            <div class="card kpi-card-modern">
+                <div class="card-body">
+                    <div class="kpi-icon bg-primary-subtle text-primary"><i class="bi bi-box-seam"></i></div>
+                    <div class="kpi-info">
+                        <span class="kpi-label">Total Products</span>
+                        <h3 class="kpi-value">{{ total_products }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card kpi-card-modern">
+                <div class="card-body">
+                    <div class="kpi-icon bg-secondary-subtle text-primary"><i class="bi bi-tags"></i></div>
+                    <div class="kpi-info">
+                        <span class="kpi-label">Categories</span>
+                        <h3 class="kpi-value">{{ total_categories }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card kpi-card-modern">
+                <div class="card-body">
+                    <div class="kpi-icon bg-success-subtle text-success"><i class="bi bi-truck"></i></div>
+                    <div class="kpi-info">
+                        <span class="kpi-label">Suppliers</span>
+                        <h3 class="kpi-value">{{ total_suppliers }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card kpi-card-modern">
+                <div class="card-body">
+                    <div class="kpi-icon bg-info-subtle text-info"><i class="bi bi-people"></i></div>
+                    <div class="kpi-info">
+                        <span class="kpi-label">Customers</span>
+                        <h3 class="kpi-value">{{ total_customers }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales + Stock alerts -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-xl-3">
+            <div class="card stat-card-modern-2">
+                <div class="card-body">
+                    <span class="stat-label">Today's Sales</span>
+                    <h4 class="stat-value text-success">${{ today_sales|floatformat:2 }}</h4>
+                    <div class="progress mt-2" style="height:5px;">
+                        <div class="progress-bar bg-success" style="width:65%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card stat-card-modern-2">
+                <div class="card-body">
+                    <span class="stat-label">Monthly Sales</span>
+                    <h4 class="stat-value text-primary">${{ month_sales|floatformat:2 }}</h4>
+                    <div class="progress mt-2" style="height:5px;">
+                        <div class="progress-bar bg-primary" style="width:78%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <a href="{% url 'inventory:overview' %}" class="text-decoration-none">
+                <div class="card stat-card-modern-2 alert-card-warning">
+                    <div class="card-body">
+                        <span class="stat-label">Low Stock</span>
+                        <h4 class="stat-value text-warning">{{ low_stock_count }}</h4>
+                        <small class="text-muted">items need restocking</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-xl-3">
+            <a href="{% url 'inventory:overview' %}" class="text-decoration-none">
+                <div class="card stat-card-modern-2 alert-card-danger">
+                    <div class="card-body">
+                        <span class="stat-label">Out of Stock</span>
+                        <h4 class="stat-value text-danger">{{ out_of_stock_count }}</h4>
+                        <small class="text-muted">items unavailable</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Modern Charts -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-8">
+            <div class="card chart-card-modern h-100">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                    <div>
+                        <h6 class="mb-0 fw-bold">Sales Performance</h6>
+                        <small class="text-muted">Revenue generated in the last 7 days</small>
+                    </div>
+                    <span class="badge bg-primary-subtle text-primary px-3 py-2">Weekly</span>
+                </div>
+                <div class="card-body p-4">
+                    <div style="height: 320px; position: relative;">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card chart-card-modern h-100">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="mb-0 fw-bold">Stock Status</h6>
+                    <small class="text-muted">Current inventory health</small>
+                </div>
+                <div class="card-body p-4 d-flex flex-column justify-content-center align-items-center">
+                    <div class="chart-container position-relative mb-4" style="height: 220px; width: 220px;">
+                        <canvas id="stockChart"></canvas>
+                        <div class="chart-center-text">
+                            <h3 class="mb-0 fw-bold text-dark">{{ in_stock_count|add:low_stock_count|add:out_of_stock_count }}</h3>
+                            <small class="text-muted">Total Items</small>
+                        </div>
+                    </div>
+                    <div class="w-100 mt-auto">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="d-flex align-items-center text-muted small"><span class="legend-dot bg-success me-2"></span>In Stock</span>
+                            <strong>{{ in_stock_count|default:0 }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="d-flex align-items-center text-muted small"><span class="legend-dot bg-warning me-2"></span>Low Stock</span>
+                            <strong>{{ low_stock_count|default:0 }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="d-flex align-items-center text-muted small"><span class="legend-dot bg-danger me-2"></span>Out of Stock</span>
+                            <strong>{{ out_of_stock_count|default:0 }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent transactions + activity -->
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="card chart-card-modern h-100">
+                <div class="card-header bg-white d-flex justify-content-between">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2 text-primary"></i>Recent Sales</h6>
+                    <a href="{% url 'sales:list' %}" class="small text-decoration-none">View all</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr><th>Invoice</th><th>Customer</th><th>Total</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for sale in recent_sales %}
+                                <tr>
+                                    <td>{{ sale.invoice_number }}</td>
+                                    <td>{{ sale.customer.name|default:'Walk-in' }}</td>
+                                    <td>${{ sale.total|floatformat:2 }}</td>
+                                    <td><span class="badge bg-{% if sale.payment_status == 'paid' %}success{% elif sale.payment_status == 'partial' %}warning{% else %}danger{% endif %}">{{ sale.payment_status|title }}</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" class="text-center text-muted py-4">No sales yet</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card chart-card-modern h-100">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-activity me-2 text-primary"></i>Recent Activity</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="activity-list">
+                        {% for activity in recent_activities %}
+                        <li class="activity-item">
+                            <span class="activity-icon bg-{% if activity.action == 'create' %}success{% elif activity.action == 'update' %}primary{% elif activity.action == 'delete' %}danger{% else %}secondary{% endif %}-subtle text-{% if activity.action == 'create' %}success{% elif activity.action == 'update' %}primary{% elif activity.action == 'delete' %}danger{% else %}secondary{% endif %}">
+                                <i class="bi bi-{% if activity.action == 'create' %}plus{% elif activity.action == 'update' %}pencil{% elif activity.action == 'delete' %}trash{% elif activity.action == 'login' %}box-arrow-in-right{% else %}box-arrow-out-right{% endif %}"></i>
+                            </span>
+                            <div class="activity-text">
+                                <p class="mb-0">{{ activity.description }}</p>
+                                <small class="text-muted">{{ activity.created_at|timesince }} ago</small>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="text-muted text-center py-4">No recent activity</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Ensure window is fully loaded so Chart.js is ready
+window.onload = function() {
+    
+    // 1. Premium Sales Line Chart
+    const salesCtx = document.getElementById('salesChart');
+    if (salesCtx) {
+        // Get context to create gradient
+        const ctx = salesCtx.getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 320);
+        gradient.addColorStop(0, 'rgba(219, 78, 43, 0.3)');
+        gradient.addColorStop(1, 'rgba(219, 78, 43, 0.0)');
+
+        new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: {{ sales_labels|safe|default:'[]' }},
+                datasets: [{
+                    label: 'Sales',
+                    data: {{ sales_data|safe|default:'[]' }},
+                    borderColor: '#db4e2b',
+                    backgroundColor: gradient, // Apply gradient fill
+                    fill: true,
+                    tension: 0.4, // Smooth curves
+                    borderWidth: 3,
+                    pointBackgroundColor: '#db4e2b',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointHoverBorderWidth: 3,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1f2937',
+                        titleColor: '#fff',
+                        bodyColor: '#cbd5e0',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Revenue: $' + context.parsed.y.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f1f5f9',
+                            drawBorder: false,
+                        },
+                        ticks: {
+                            color: '#94a3b8',
+                            font: { size: 11 },
+                            callback: function(value) { return '$' + value; }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false // Hide vertical grid lines
+                        },
+                        ticks: {
+                            color: '#94a3b8',
+                            font: { size: 12, weight: '500' }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Premium Stock Doughnut Chart
+    const stockCtx = document.getElementById('stockChart');
+    if (stockCtx) {
+        new Chart(stockCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['In Stock', 'Low Stock', 'Out of Stock'],
+                datasets: [{
+                    data: [{{ in_stock_count|default:0 }}, {{ low_stock_count|default:0 }}, {{ out_of_stock_count|default:0 }}],
+                    backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], // Modern emerald, amber, red
+                    borderWidth: 4,
+                    borderColor: '#ffffff', // White border between segments
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%', // Thicker ring
+                plugins: {
+                    legend: { display: false }, // Hide default legend (we use custom HTML below)
+                    tooltip: {
+                        backgroundColor: '#1f2937',
+                        titleColor: '#fff',
+                        bodyColor: '#cbd5e0',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false,
+                    }
+                }
+            }
+        });
+    }
+};
+</script>
+{% endblock %}

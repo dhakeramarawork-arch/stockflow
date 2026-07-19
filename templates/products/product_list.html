@@ -1,0 +1,89 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Products - {{ SITE_NAME }}{% endblock %}
+{% block breadcrumb_item %}Products{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h4 class="fw-bold mb-1"><i class="bi bi-box-seam me-2"></i>Products</h4>
+            <p class="text-muted mb-0">Manage your product catalog</p>
+        </div>
+        <a href="{% url 'products:create' %}" class="btn btn-primary btn-animated">
+            <i class="bi bi-plus-lg me-1"></i> Add Product
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-white">
+            <form method="get" class="d-flex gap-2 flex-wrap">
+                <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search by name, SKU, barcode..." style="max-width:300px;">
+                <select name="category" class="form-select" style="max-width:180px;">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if category|stringformat:"s" == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+                <select name="stock" class="form-select" style="max-width:160px;">
+                    <option value="">All Stock</option>
+                    <option value="low" {% if stock_filter == 'low' %}selected{% endif %}>Low Stock</option>
+                    <option value="out" {% if stock_filter == 'out' %}selected{% endif %}>Out of Stock</option>
+                </select>
+                <button type="submit" class="btn btn-outline-primary"><i class="bi bi-search"></i></button>
+            </form>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                {% for product in page_obj %}
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    <div class="card product-card h-100">
+                        <div class="product-image">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                            {% else %}
+                                <div class="product-image-placeholder"><i class="bi bi-box-seam"></i></div>
+                            {% endif %}
+                            <span class="badge bg-{% if product.stock_status == 'in_stock' %}success{% elif product.stock_status == 'low_stock' %}warning{% else %}danger{% endif %} product-status-badge">
+                                {{ product.stock_status|title|cut:'_' }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <small class="text-muted">{{ product.sku }}</small>
+                            <h6 class="fw-bold mb-1 text-truncate">{{ product.name }}</h6>
+                            <p class="small text-muted mb-2">{{ product.category.name|default:'Uncategorized' }} · {{ product.brand.name|default:'No brand' }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="fw-bold text-primary">${{ product.selling_price|floatformat:2 }}</span>
+                                    <small class="text-muted d-block">Stock: {{ product.current_stock }} {{ product.unit.short_code|default:'' }}</small>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <a class="dropdown-item" href="{% url 'products:detail' product.id %}"><i class="bi bi-eye me-2"></i>View</a>
+                                        <a class="dropdown-item" href="{% url 'products:update' product.id %}"><i class="bi bi-pencil me-2"></i>Edit</a>
+                                        <a class="dropdown-item text-danger" href="{% url 'products:delete' product.id %}"><i class="bi bi-trash me-2"></i>Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <i class="bi bi-inbox display-4 text-muted d-block mb-2"></i>
+                    <p class="text-muted">No products found.</p>
+                    <a href="{% url 'products:create' %}" class="btn btn-primary btn-sm">Add Product</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% if page_obj.has_other_pages %}
+        <div class="card-footer bg-white">
+            {% include 'partials/pagination.html' %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

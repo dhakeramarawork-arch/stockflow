@@ -1,0 +1,61 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - {{ SITE_NAME }}{% endblock %}
+{% block breadcrumb_item %}Customers{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'customers:list' %}">Customers</a></li>
+            <li class="breadcrumb-item active">{{ title }}</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header bg-white">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-{% if customer %}pencil{% else %}plus-lg{% endif %} me-2"></i>{{ title }}</h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Customer Name <span class="text-danger">*</span></label>
+                        {{ form.name }}
+                        {{ form.name.errors }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Phone <span class="text-danger">*</span></label>
+                        {{ form.phone }}
+                        {{ form.phone.errors }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">City</label>
+                        {{ form.city }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Address</label>
+                        {{ form.address }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Status</label>
+                        {{ form.status }}
+                    </div>
+                    <div class="col-12 mt-4">
+                        <button type="submit" class="btn btn-primary btn-animated">
+                            <i class="bi bi-save me-2"></i>Save Customer
+                        </button>
+                        <a href="{% url 'customers:list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

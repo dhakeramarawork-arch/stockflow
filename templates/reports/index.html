@@ -1,0 +1,90 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Reports{% endblock %}
+{% block breadcrumb_item %}Reports{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <h4 class="fw-bold mb-4"><i class="bi bi-file-earmark-bar-graph me-2"></i>Reports</h4>
+    <div class="row g-3">
+        <div class="col-md-6 col-lg-4">
+            <a href="{% url 'reports:sales' %}" class="text-decoration-none">
+                <div class="card report-card h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-receipt display-5 text-primary mb-2"></i>
+                        <h6 class="fw-bold">Sales Report</h6>
+                        <p class="small text-muted mb-0">View and export all sales transactions</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="{% url 'reports:purchases' %}" class="text-decoration-none">
+                <div class="card report-card h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-cart-plus display-5 text-success mb-2"></i>
+                        <h6 class="fw-bold">Purchase Report</h6>
+                        <p class="small text-muted mb-0">Analyze purchase history and spending</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="{% url 'reports:inventory' %}" class="text-decoration-none">
+                <div class="card report-card h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-box-seam display-5 text-info mb-2"></i>
+                        <h6 class="fw-bold">Inventory Report</h6>
+                        <p class="small text-muted mb-0">Current stock value and status</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="{% url 'reports:profit' %}" class="text-decoration-none">
+                <div class="card report-card h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-cash-coin display-5 text-warning mb-2"></i>
+                        <h6 class="fw-bold">Profit Report</h6>
+                        <p class="small text-muted mb-0">Calculate profit margins per sale</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="{% url 'reports:low_stock' %}" class="text-decoration-none">
+                <div class="card report-card h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-exclamation-triangle display-5 text-danger mb-2"></i>
+                        <h6 class="fw-bold">Low Stock Report</h6>
+                        <p class="small text-muted mb-0">Items needing restock</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="{% url 'reports:suppliers' %}" class="text-decoration-none">
+                <div class="card report-card h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-truck display-5 text-primary mb-2"></i>
+                        <h6 class="fw-bold">Supplier Report</h6>
+                        <p class="small text-muted mb-0">Supplier performance summary</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="{% url 'reports:customers' %}" class="text-decoration-none">
+                <div class="card report-card h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-people display-5 text-info mb-2"></i>
+                        <h6 class="fw-bold">Customer Report</h6>
+                        <p class="small text-muted mb-0">Customer purchase history</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

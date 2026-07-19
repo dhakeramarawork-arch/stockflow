@@ -1,0 +1,179 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block title %}New Purchase{% endblock %}
+{% block breadcrumb_item %}New Purchase{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <div class="page-header mb-4">
+        <h4 class="fw-bold"><i class="bi bi-cart-plus me-2"></i>New Purchase Order</h4>
+        <p class="text-muted">Record a purchase from a supplier — stock will auto-update.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-4">
+            <form method="post" id="purchaseForm">
+                {% csrf_token %}
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label">Supplier <span class="text-danger">*</span></label>
+                        {{ form.supplier }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Purchase Date</label>
+                        {{ form.purchase_date }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Payment Status</label>
+                        {{ form.payment_status }}
+                    </div>
+                </div>
+
+                <h6 class="fw-bold mb-3">Purchase Items</h6>
+                <div class="table-responsive mb-3">
+                    <table class="table" id="itemsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Product</th>
+                                <th style="width:120px;">Quantity</th>
+                                <th style="width:140px;">Unit Cost</th>
+                                <th style="width:140px;">Total</th>
+                                <th style="width:50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsBody">
+                            <tr class="item-row">
+                                <td>
+                                    <select name="product[]" class="form-select item-product" required>
+                                        <option value="">Select product...</option>
+                                        {% for p in products %}
+                                        <option value="{{ p.id }}" data-price="{{ p.purchase_price }}">{{ p.name }} ({{ p.sku }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td><input type="number" name="quantity[]" class="form-control item-qty" step="0.01" min="0.01" value="1" required></td>
+                                <td><input type="number" name="unit_cost[]" class="form-control item-cost" step="0.01" min="0" required></td>
+                                <td class="item-total">$0.00</td>
+                                <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="removeRow(this)"><i class="bi bi-x"></i></button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm mb-4" onclick="addRow()">
+                    <i class="bi bi-plus-lg me-1"></i> Add Item
+                </button>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Discount</label>
+                        <div class="input-group"><span class="input-group-text">$</span>{{ form.discount }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Tax</label>
+                        <div class="input-group"><span class="input-group-text">$</span>{{ form.tax }}</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Notes</label>
+                        {{ form.notes }}
+                    </div>
+                </div>
+
+                <div class="purchase-summary mt-4 p-3 bg-light rounded">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <strong id="subtotal">$0.00</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Discount:</span>
+                        <strong id="discountDisplay">$0.00</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tax:</span>
+                        <strong id="taxDisplay">$0.00</strong>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <strong>Total:</strong>
+                        <strong class="h5 text-primary" id="grandTotal">$0.00</strong>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary btn-animated">
+                        <i class="bi bi-save me-2"></i>Save Purchase
+                    </button>
+                    <a href="{% url 'purchases:list' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const productsData = {{ products|safe|default:'[]' }};
+// Re-parse to object map
+const productMap = {};
+document.querySelectorAll('.item-product option').forEach(opt => {
+    if (opt.value) productMap[opt.value] = parseFloat(opt.dataset.price || 0);
+});
+
+function addRow() {
+    const tbody = document.getElementById('itemsBody');
+    const firstRow = tbody.querySelector('.item-row');
+    const newRow = firstRow.cloneNode(true);
+    newRow.querySelectorAll('input, select').forEach(el => el.value = el.tagName === 'SELECT' ? '' : (el.classList.contains('item-qty') ? '1' : ''));
+    newRow.querySelector('.item-total').textContent = '$0.00';
+    tbody.appendChild(newRow);
+    attachRowListeners(newRow);
+}
+
+function removeRow(btn) {
+    const rows = document.querySelectorAll('.item-row');
+    if (rows.length > 1) {
+        btn.closest('tr').remove();
+        calculateTotals();
+    }
+}
+
+function attachRowListeners(row) {
+    row.querySelectorAll('.item-qty, .item-cost').forEach(el => el.addEventListener('input', calculateRowTotal));
+    row.querySelector('.item-product').addEventListener('change', function() {
+        const price = productMap[this.value] || 0;
+        row.querySelector('.item-cost').value = price.toFixed(2);
+        calculateRowTotal(row);
+    });
+}
+
+function calculateRowTotal(row) {
+    if (!row) row = event.currentTarget.closest('tr');
+    const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+    const cost = parseFloat(row.querySelector('.item-cost').value) || 0;
+    row.querySelector('.item-total').textContent = `$${(qty * cost).toFixed(2)}`;
+    calculateTotals();
+}
+
+function calculateTotals() {
+    let subtotal = 0;
+    document.querySelectorAll('.item-row').forEach(row => {
+        const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+        const cost = parseFloat(row.querySelector('.item-cost').value) || 0;
+        subtotal += qty * cost;
+    });
+    const discount = parseFloat(document.getElementById('id_discount').value) || 0;
+    const tax = parseFloat(document.getElementById('id_tax').value) || 0;
+    const total = subtotal - discount + tax;
+    document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+    document.getElementById('discountDisplay').textContent = `$${discount.toFixed(2)}`;
+    document.getElementById('taxDisplay').textContent = `$${tax.toFixed(2)}`;
+    document.getElementById('grandTotal').textContent = `$${total.toFixed(2)}`;
+}
+
+document.querySelectorAll('.item-row').forEach(attachRowListeners);
+document.getElementById('id_discount').addEventListener('input', calculateTotals);
+document.getElementById('id_tax').addEventListener('input', calculateTotals);
+calculateTotals();
+</script>
+{% endblock %}

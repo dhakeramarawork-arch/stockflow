@@ -1,0 +1,72 @@
+{% load static %}
+<!-- Top Navbar -->
+<nav class="top-navbar navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <button class="btn btn-link nav-toggle-btn" onclick="toggleSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="d-none d-md-block">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{% block breadcrumb_item %}Dashboard{% endblock %}</li>
+            </ol>
+        </nav>
+
+        <div class="navbar-right ms-auto d-flex align-items-center gap-3">
+            <!-- Global Search -->
+            <form class="d-none d-md-flex global-search-form" method="get" action="{% url 'products:list' %}">
+                <i class="bi bi-search"></i>
+                <input type="text" name="q" class="form-control" placeholder="Search products...">
+            </form>
+
+            <!-- Notifications dropdown -->
+            <div class="dropdown">
+                <button class="btn btn-icon dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-bell"></i>
+                    {% if low_stock_count %}
+                    <span class="notif-badge"></span>
+                    {% endif %}
+                </button>
+                <div class="dropdown-menu dropdown-menu-end notif-menu">
+                    <h6 class="dropdown-header">Notifications</h6>
+                    <a class="dropdown-item" href="{% url 'inventory:overview' %}">
+                        <i class="bi bi-exclamation-triangle text-warning"></i>
+                        Low stock items: {{ low_stock_count|default:0 }}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'inventory:overview' %}">
+                        <i class="bi bi-x-circle text-danger"></i>
+                        Out of stock: {{ out_of_stock_count|default:0 }}
+                    </a>
+                </div>
+            </div>
+
+            <!-- User menu -->
+            <div class="dropdown">
+                <button class="btn btn-user dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+                    <div class="user-avatar">
+                        {% if request.user.profile.avatar %}
+                            <img src="{{ request.user.profile.avatar.url }}" alt="avatar">
+                        {% else %}
+                            <i class="bi bi-person-fill"></i>
+                        {% endif %}
+                    </div>
+                    <span class="d-none d-md-inline ms-2">{{ request.user.get_full_name|default:request.user.username }}</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end user-menu">
+                    <a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                        <i class="bi bi-person"></i> My Profile
+                    </a>
+                    <a class="dropdown-item" href="{% url 'accounts:change_password' %}">
+                        <i class="bi bi-key"></i> Change Password
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>

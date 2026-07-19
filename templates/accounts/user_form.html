@@ -1,0 +1,78 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block breadcrumb_item %}Manage Users{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'accounts:user_list' %}">Users</a></li>
+            <li class="breadcrumb-item active">{{ title }}</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header bg-white">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-person-plus me-2"></i>{{ title }}</h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Username <span class="text-danger">*</span></label>
+                        {{ form.username }}
+                        {{ form.username.errors }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Role <span class="text-danger">*</span></label>
+                        {{ form.role }}
+                        {{ form.role.errors }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">First Name</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Last Name</label>
+                        {{ form.last_name }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Email</label>
+                        {{ form.email }}
+                    </div>
+                    
+                    {% if form.password1 %}
+                    <div class="col-md-6">
+                        <label class="form-label">Password <span class="text-danger">*</span></label>
+                        {{ form.password1 }}
+                        <small class="text-muted">{{ form.password1.help_text }}</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                        {{ form.password2 }}
+                        {{ form.password2.errors }}
+                    </div>
+                    {% else %}
+                    <div class="col-12">
+                        <div class="form-check">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="id_is_active">User is active (can log in)</label>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="col-12 mt-4">
+                        <button type="submit" class="btn btn-primary btn-animated">
+                            <i class="bi bi-save me-2"></i>Save User
+                        </button>
+                        <a href="{% url 'accounts:user_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
